@@ -44,6 +44,17 @@ This repository contains a comprehensive Air Quality Index (AQI) prediction syst
 - **Quick Share**: Share AQI reports via social media or email
 - **Customizable Alerts**: Set personal AQI thresholds for notifications
 
+### 6. Psychological Impact Assessment
+- **Mental Health Awareness**: Correlates air quality with potential psychological effects
+- **Mood Impact Tracking**: 
+  - Daily mood variations based on AQI levels
+  - Seasonal affective patterns related to air quality
+- **Stress Level Indicators**: Visual representation of potential stress triggers from poor air quality
+- **Wellness Tips**: 
+  - Indoor activity alternatives during high AQI periods
+  - Mental wellness recommendations during prolonged poor air quality
+- **Community Support**: Connect with others experiencing similar air quality conditions
+
 ## 🔍 Key Parameters
 The system considers the following pollutants for AQI prediction:
 - PM2.5 (Fine particulate matter)
