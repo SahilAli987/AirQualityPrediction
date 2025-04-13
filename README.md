@@ -45,15 +45,35 @@ This repository contains a comprehensive Air Quality Index (AQI) prediction syst
 - **Customizable Alerts**: Set personal AQI thresholds for notifications
 
 ### 6. Psychological Impact Assessment
-- **Mental Health Awareness**: Correlates air quality with potential psychological effects
-- **Mood Impact Tracking**: 
-  - Daily mood variations based on AQI levels
-  - Seasonal affective patterns related to air quality
-- **Stress Level Indicators**: Visual representation of potential stress triggers from poor air quality
-- **Wellness Tips**: 
-  - Indoor activity alternatives during high AQI periods
-  - Mental wellness recommendations during prolonged poor air quality
-- **Community Support**: Connect with others experiencing similar air quality conditions
+- **Personalized Mental Wellness Recommendations**:
+  - Time-of-day based suggestions (Morning/Afternoon/Evening)
+  - Exposure duration-aware recommendations
+  - Adaptive activity suggestions based on AQI levels
+  - Indoor/Outdoor activity balance recommendations
+
+- **Interactive Mood Tracking**:
+  - Daily mood logging with emoji-based interface
+  - Correlation analysis between AQI and mood patterns
+  - Personal wellness journal integration
+  - Historical mood data visualization
+
+- **Stress Management System**:
+  - Customized stress-reduction techniques
+  - AQI-level specific coping strategies
+  - Guided meditation and relaxation exercises
+  - Progressive stress monitoring
+
+- **Wellness Activity Planner**:
+  - Smart scheduling based on air quality forecasts
+  - Alternative indoor activity suggestions
+  - Nature connection opportunities
+  - Social engagement recommendations
+
+- **Support Network Integration**:
+  - Access to air quality support groups
+  - Community connection features
+  - Professional mental health resources
+  - Regular wellness check-ins
 
 ## 🔍 Key Parameters
 The system considers the following pollutants for AQI prediction:
