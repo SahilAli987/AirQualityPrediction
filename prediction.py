@@ -13,6 +13,8 @@ import os
 import concurrent.futures
 import time
 from datetime import datetime, timedelta
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 
 # Geolocation Component Setup
 _RELEASE = True
@@ -461,7 +463,7 @@ def show_geo_prediction_page():
                 with col1:
                     st.subheader("Real-time Air Quality")
                     
-                    # Convert AQI to category
+                    # Convert AQI to category with emoji
                     def get_aqi_category(aqi):
                         if aqi <= 50:
                             return ("Good", "🟢")
@@ -1456,22 +1458,19 @@ def show_psychological_impact(aqi):
                 st.success("Wellness data saved successfully! Keep tracking for better insights.")
 
 def show_stress_correlation():
-    st.title("🧠 AQI & Mental Wellness Analysis")
-    st.markdown("""
-        <div style='background-color: #1e1e1e; padding: 1rem; border-radius: 10px; margin-bottom: 2rem;'>
-            <p style='font-size: 1.1rem; color: #e0e0e0;'>
-            Track and analyze how air quality affects your mental well-being with personalized insights and recommendations.
-            </p>
-        </div>
-    """, unsafe_allow_html=True)
+    st.title("🌬️ Air Quality & Mental Wellness Analysis")
     
-    # Create tabs with custom styling
-    tab1, tab2 = st.tabs(["🎯 Personal Analysis", "📊 Population Trends"])
+    # Get current time context
+    current_hour = datetime.now().hour
+    time_of_day = 'morning' if 5 <= current_hour < 12 else 'afternoon' if 12 <= current_hour < 18 else 'evening'
+    
+    # Create tabs
+    tab1, tab2 = st.tabs(["🎯 Personal Analysis", "📊 Air Quality Trends"])
     
     with tab1:
         st.markdown("### 📍 Location & Air Quality")
         
-        # Get current AQI data with enhanced UI
+        # Enhanced location detection with error handling
         use_location = st.checkbox("📱 Use my current location", help="Enable to automatically detect your location")
         current_aqi = None
         
@@ -1485,330 +1484,305 @@ def show_stress_correlation():
                     if aqi_data:
                         current_aqi = aqi_data['aqi']
                         st.success(f"📌 Current AQI at your location: {current_aqi}")
+                        
+                        # Display AQI category and health implications
+                        if current_aqi <= 50:
+                            st.success("Air Quality: Good - Perfect for outdoor activities! 🌳")
+                        elif current_aqi <= 100:
+                            st.info("Air Quality: Moderate - Sensitive individuals should reduce prolonged outdoor exposure 🚶")
+                        elif current_aqi <= 150:
+                            st.warning("Air Quality: Unhealthy for Sensitive Groups - Reduce outdoor activities 😷")
+                        elif current_aqi <= 200:
+                            st.warning("Air Quality: Unhealthy - Everyone should limit outdoor activities 🏠")
+                        elif current_aqi <= 300:
+                            st.error("Air Quality: Very Unhealthy - Avoid outdoor activities! ⚠️")
+                        else:
+                            st.error("Air Quality: Hazardous - Emergency conditions! Take precautions! ☣️")
                     else:
                         st.error("❌ Could not fetch AQI data for your location")
         else:
             current_aqi = st.number_input("🌡️ Enter current AQI value:", 0, 500, 100)
         
-        # Create a form for wellness indicators with enhanced UI
+        # Air Quality Impact Assessment
+        st.markdown("### 🌬️ Air Quality Impact Assessment")
+        
+        # Create wellness form with enhanced features
         with st.form(key='wellness_form'):
-            st.markdown("""
-            <div style='background-color: #2d2d2d; padding: 1rem; border-radius: 10px; margin: 1rem 0;'>
-                <h3 style='color: #4CAF50; margin-bottom: 0.5rem;'>📝 Daily Wellness Check-in</h3>
-                <p style='color: #e0e0e0; font-size: 0.9rem;'>
-                Rate each indicator based on how you feel today. Your responses help create personalized recommendations.
-                </p>
-            </div>
-            """, unsafe_allow_html=True)
-            
+            st.markdown("#### 😷 Air Quality Symptoms")
             col1, col2 = st.columns(2)
-            
             with col1:
-                st.markdown("#### 😌 Emotional State")
-                st.markdown("""
-                    <div style='background-color: #2d2d2d; padding: 10px; border-radius: 5px; margin-bottom: 15px;'>
-                        <p style='font-size: 0.9rem; font-weight: bold; color: #e0e0e0;'>How to Rate Your Stress Level:</p>
-                        <p style='font-size: 0.85rem; color: #bdbdbd;'>
-                        • 0-2: Feeling completely relaxed, like after a vacation<br>
-                        • 3-4: Slight pressure but manageable, like a normal workday<br>
-                        • 5-6: Noticeable stress, like before a deadline<br>
-                        • 7-8: High stress, feeling overwhelmed with tasks<br>
-                        • 9-10: Extreme stress, feeling unable to cope
-                        </p>
-                    </div>
-                """, unsafe_allow_html=True)
-                stress_level = st.slider("Stress Level", 0, 10, 5)
-
-                st.markdown("""
-                    <div style='background-color: #2d2d2d; padding: 10px; border-radius: 5px; margin-bottom: 15px;'>
-                        <p style='font-size: 0.9rem; font-weight: bold; color: #e0e0e0;'>How to Rate Your Sleep Quality:</p>
-                        <p style='font-size: 0.85rem; color: #bdbdbd;'>
-                        • 0-2: Barely slept, constant disruptions<br>
-                        • 3-4: Poor sleep, woke up multiple times<br>
-                        • 5-6: Average sleep, some interruptions<br>
-                        • 7-8: Good sleep, woke up feeling refreshed<br>
-                        • 9-10: Perfect sleep, feel completely rejuvenated
-                        </p>
-                    </div>
-                """, unsafe_allow_html=True)
-                sleep_quality = st.slider("Sleep Quality", 0, 10, 7)
-
-                st.markdown("""
-                    <div style='background-color: #2d2d2d; padding: 10px; border-radius: 5px; margin-bottom: 15px;'>
-                        <p style='font-size: 0.9rem; font-weight: bold; color: #e0e0e0;'>How to Rate Your Anxiety Level:</p>
-                        <p style='font-size: 0.85rem; color: #bdbdbd;'>
-                        • 0-2: Feeling calm and at peace<br>
-                        • 3-4: Mild unease, like before a meeting<br>
-                        • 5-6: Noticeable worry about several things<br>
-                        • 7-8: Strong anxiety affecting daily tasks<br>
-                        • 9-10: Severe anxiety, possibly panic symptoms
-                        </p>
-                    </div>
-                """, unsafe_allow_html=True)
-                anxiety_level = st.slider("Anxiety Level", 0, 10, 4)
-
+                respiratory_issues = st.checkbox("Respiratory Issues (coughing, wheezing)")
+                eye_irritation = st.checkbox("Eye Irritation")
+                throat_irritation = st.checkbox("Throat Irritation")
+                breathing_difficulty = st.checkbox("Breathing Difficulty")
             with col2:
-                st.markdown("#### 🌟 Overall Wellness")
-                st.markdown("""
-                    <div style='background-color: #2d2d2d; padding: 10px; border-radius: 5px; margin-bottom: 15px;'>
-                        <p style='font-size: 0.9rem; font-weight: bold; color: #e0e0e0;'>How to Rate Your Mood:</p>
-                        <p style='font-size: 0.85rem; color: #bdbdbd;'>
-                        • 0-2: Feeling very low, struggling to engage<br>
-                        • 3-4: Somewhat down, less interested in activities<br>
-                        • 5-6: Neutral, neither particularly happy nor sad<br>
-                        • 7-8: Generally positive, enjoying activities<br>
-                        • 9-10: Excellent mood, feeling enthusiastic
-                        </p>
-                    </div>
-                """, unsafe_allow_html=True)
-                mood_score = st.slider("Mood", 0, 10, 6)
-
-                st.markdown("""
-                    <div style='background-color: #2d2d2d; padding: 10px; border-radius: 5px; margin-bottom: 15px;'>
-                        <p style='font-size: 0.9rem; font-weight: bold; color: #e0e0e0;'>How to Rate Your Energy Level:</p>
-                        <p style='font-size: 0.85rem; color: #bdbdbd;'>
-                        • 0-2: Exhausted, struggling to stay awake<br>
-                        • 3-4: Low energy, need extra rest<br>
-                        • 5-6: Average energy for daily tasks<br>
-                        • 7-8: Good energy, feeling productive<br>
-                        • 9-10: High energy, feeling very active
-                        </p>
-                    </div>
-                """, unsafe_allow_html=True)
-                energy_level = st.slider("Energy Level", 0, 10, 6)
-
-            st.markdown("""
-                <div style='background-color: #2d2d2d; padding: 15px; border-radius: 5px; margin-top: 20px;'>
-                    <p style='font-size: 0.9rem; font-weight: bold; color: #4CAF50;'>Tips for Accurate Rating:</p>
-                    <p style='font-size: 0.85rem; color: #e0e0e0;'>
-                    • Compare how you feel right now to the descriptions above<br>
-                    • Consider your state over the last few hours<br>
-                    • Be honest - there are no "right" or "wrong" answers<br>
-                    • Trust your first instinct rather than overthinking<br>
-                    • Update your ratings at different times to track changes
-                    </p>
-                </div>
-            """, unsafe_allow_html=True)
+                fatigue = st.checkbox("Fatigue")
+                dizziness = st.checkbox("Dizziness")
+                headache = st.checkbox("Headache")
+                chest_tightness = st.checkbox("Chest Tightness")
             
-            # Submit button with enhanced styling
-            submitted = st.form_submit_button("📊 Analyze & Save Data", 
-                help="Click to get personalized recommendations based on your inputs")
+            st.markdown("#### 🧠 Air Quality Impact on Mental State")
+            col3, col4 = st.columns(2)
+            with col3:
+                stress_level = st.slider("Stress Level", 0, 10, 5, 
+                    help="Rate your current stress level from 0 (completely relaxed) to 10 (extremely stressed)")
+                
+                anxiety_level = st.slider("Anxiety Level", 0, 10, 4,
+                    help="Rate your anxiety from 0 (calm) to 10 (severe anxiety)")
+                
+                focus_level = st.slider("Focus & Concentration", 0, 10, 6,
+                    help="Rate your ability to focus from 0 (very scattered) to 10 (highly focused)")
+            
+            with col4:
+                sleep_quality = st.slider("Sleep Quality", 0, 10, 7,
+                    help="Rate your sleep quality from 0 (very poor) to 10 (excellent)")
+                
+                energy_level = st.slider("Energy Level", 0, 10, 6,
+                    help="Rate your energy from 0 (exhausted) to 10 (highly energetic)")
+                
+                mood_level = st.slider("Mood Level", 0, 10, 6,
+                    help="Rate your mood from 0 (very low) to 10 (excellent)")
+            
+            # Environmental Exposure
+            st.markdown("#### 🌍 Environmental Exposure")
+            col5, col6 = st.columns(2)
+            with col5:
+                outdoor_time = st.slider("Hours Spent Outdoors Today", 0, 24, 2)
+                ventilation_rating = st.slider("Indoor Ventilation Quality", 0, 10, 7)
+            with col6:
+                air_purifier_use = st.checkbox("Using Air Purifier")
+                mask_wearing = st.checkbox("Wearing Mask Outdoors")
+            
+            submitted = st.form_submit_button("📊 Analyze Air Quality Impact")
             
             if submitted and current_aqi is not None:
-                # Calculate impact scores
-                base_stress_impact = min((current_aqi / 500) * 10, 10)
-                personal_stress_index = (stress_level + (10 - sleep_quality) + anxiety_level + 
-                                    (10 - mood_score) + (10 - energy_level)) / 5
-                aqi_stress_correlation = min((base_stress_impact + personal_stress_index) / 2, 10)
+                # Calculate comprehensive scores
+                physical_symptoms_count = sum([respiratory_issues, eye_irritation, throat_irritation, 
+                    breathing_difficulty, fatigue, dizziness, headache, chest_tightness])
                 
-                # Display analysis results with enhanced UI
-                st.markdown("""
-                <div style='background-color: #2d2d2d; padding: 1rem; border-radius: 10px; margin: 1rem 0;'>
-                    <h3 style='color: #64B5F6; margin-bottom: 1rem;'>🎯 Analysis Results</h3>
-                </div>
-                """, unsafe_allow_html=True)
+                mental_wellness_score = (10 - stress_level + 10 - anxiety_level + focus_level) / 3
+                physical_wellness_score = (sleep_quality + energy_level + (10 - physical_symptoms_count)) / 3
                 
+                # Calculate impact score starting from 0 when no symptoms are present
+                symptoms_impact_score = 10 if physical_symptoms_count == 0 else max(0, 10 - (physical_symptoms_count * 1.25))
+                
+                # Display Analysis Results
+                st.markdown("### 📊 Air Quality Impact Analysis")
+                
+                # Display metrics in columns
                 col1, col2, col3 = st.columns(3)
                 with col1:
-                    st.metric("AQI Impact", f"{base_stress_impact:.1f}/10", 
-                        delta="High" if base_stress_impact > 7 else "Moderate" if base_stress_impact > 4 else "Low")
+                    st.metric("Air Quality Impact Score", f"{symptoms_impact_score:.1f}/10",
+                        delta="Low Impact" if symptoms_impact_score > 7 else "Moderate Impact" if symptoms_impact_score > 5 else "High Impact")
                 with col2:
-                    st.metric("Stress Index", f"{personal_stress_index:.1f}/10",
-                        delta="High" if personal_stress_index > 7 else "Moderate" if personal_stress_index > 4 else "Low")
+                    st.metric("Mental Wellness Score", f"{mental_wellness_score:.1f}/10",
+                        delta="Good" if mental_wellness_score > 7 else "Moderate" if mental_wellness_score > 5 else "Needs Attention")
                 with col3:
-                    st.metric("Overall Impact", f"{aqi_stress_correlation:.1f}/10",
-                        delta="Significant" if aqi_stress_correlation > 7 else "Moderate" if aqi_stress_correlation > 4 else "Low")
+                    st.metric("Physical Wellness Score", f"{physical_wellness_score:.1f}/10",
+                        delta="Good" if physical_wellness_score > 7 else "Moderate" if physical_wellness_score > 5 else "Needs Attention")
                 
-                # Enhanced personalized recommendations
-                st.markdown("### Personalized Recommendations")
+                # Air Quality Specific Recommendations
+                st.markdown("### 🌬️ Air Quality Recommendations")
                 
-                # Create detailed recommendations based on scores
-                with st.expander("😌 Stress Management", expanded=True):
-                    if stress_level > 7:
-                        st.markdown("""
-                        <div style='background-color: #2d2d2d; padding: 10px; border-radius: 5px;'>
-                            <p style='color: #ff5252; font-weight: bold;'>High Stress Level Detected</p>
-                            <ul style='color: #e0e0e0;'>
-                                <li>🧘‍♀️ Practice deep breathing exercises (5-5-5 method)</li>
-                                <li>🎵 Use calming music or nature sounds during work</li>
-                                <li>⏰ Take mandatory breaks every 45 minutes</li>
-                                <li>📱 Try stress-management apps like Calm or Headspace</li>
-                                <li>👥 Consider speaking with a wellness professional</li>
-                            </ul>
-                        </div>
-                        """, unsafe_allow_html=True)
-                    elif stress_level > 4:
-                        st.markdown("""
-                        <div style='background-color: #2d2d2d; padding: 10px; border-radius: 5px;'>
-                            <p style='color: #ffd740; font-weight: bold;'>Moderate Stress Level</p>
-                            <ul style='color: #e0e0e0;'>
-                                <li>🌿 Try gentle stretching exercises</li>
-                                <li>☕ Take mindful breaks between tasks</li>
-                                <li>📝 Start a stress journal</li>
-                                <li>🚶‍♀️ Take short walks in well-ventilated areas</li>
-                            </ul>
-                        </div>
-                        """, unsafe_allow_html=True)
-                    else:
-                        st.markdown("""
-                        <div style='background-color: #2d2d2d; padding: 10px; border-radius: 5px;'>
-                            <p style='color: #4CAF50; font-weight: bold;'>Well-Managed Stress</p>
-                            <ul style='color: #e0e0e0;'>
-                                <li>✨ Maintain your current stress management practices</li>
-                                <li>🌟 Continue your balanced routine</li>
-                                <li>💪 Share your successful strategies with others</li>
-                            </ul>
-                        </div>
-                        """, unsafe_allow_html=True)
-                
-                with st.expander("😴 Sleep Enhancement", expanded=True):
-                    if sleep_quality < 5:
-                        st.markdown("""
-                        <div style='background-color: #2d2d2d; padding: 10px; border-radius: 5px;'>
-                            <p style='color: #ff5252; font-weight: bold;'>Poor Sleep Quality</p>
-                            <ul style='color: #e0e0e0;'>
-                                <li>🌙 Establish a strict sleep schedule</li>
-                                <li>🛏️ Create an optimal sleep environment</li>
-                                <li>🌿 Consider air purification in bedroom</li>
-                                <li>📱 Limit screen time 2 hours before bed</li>
-                                <li>🍵 Try calming herbal teas</li>
-                            </ul>
-                        </div>
-                        """, unsafe_allow_html=True)
-                    elif sleep_quality < 8:
-                        st.markdown("""
-                        <div style='background-color: #2d2d2d; padding: 10px; border-radius: 5px;'>
-                            <p style='color: #ffd740; font-weight: bold;'>Moderate Sleep Quality</p>
-                            <ul style='color: #e0e0e0;'>
-                                <li>🌅 Maintain consistent wake times</li>
-                                <li>🚶‍♀️ Evening relaxation routine</li>
-                                <li>💡 Adjust lighting before bedtime</li>
-                                <li>📚 Read before sleep instead of screens</li>
-                            </ul>
-                        </div>
-                        """, unsafe_allow_html=True)
-                    else:
-                        st.markdown("""
-                        <div style='background-color: #2d2d2d; padding: 10px; border-radius: 5px;'>
-                            <p style='color: #4CAF50; font-weight: bold;'>Good Sleep Quality</p>
-                            <ul style='color: #e0e0e0;'>
-                                <li>⭐ Continue your effective sleep routine</li>
-                                <li>📝 Document your successful sleep habits</li>
-                                <li>🌟 Maintain regular sleep schedule</li>
-                            </ul>
-                        </div>
-                        """, unsafe_allow_html=True)
-                
-                # Add AQI-specific recommendations
-                with st.expander("🌬️ Air Quality Recommendations", expanded=True):
-                    if current_aqi > 200:
-                        st.markdown("""
-                        <div style='background-color: #2d2d2d; padding: 10px; border-radius: 5px;'>
-                            <p style='color: #ff5252; font-weight: bold;'>High AQI Alert - Take Action</p>
-                            <ul style='color: #e0e0e0;'>
-                                <li>🏠 Stay indoors with air purification</li>
-                                <li>😷 Use N95 masks when outdoors</li>
-                                <li>🌿 Add air-purifying plants to your space</li>
-                                <li>💨 Monitor indoor air quality</li>
-                                <li>⚕️ Keep emergency contacts handy</li>
-                            </ul>
-                        </div>
-                        """, unsafe_allow_html=True)
-                    elif current_aqi > 100:
-                        st.markdown("""
-                        <div style='background-color: #2d2d2d; padding: 10px; border-radius: 5px;'>
-                            <p style='color: #ffd740; font-weight: bold;'>Moderate AQI - Use Caution</p>
-                            <ul style='color: #e0e0e0;'>
-                                <li>🚶‍♀️ Limit outdoor activities</li>
-                                <li>🪟 Keep windows closed during peak hours</li>
-                                <li>💧 Stay well hydrated</li>
-                                <li>🏃‍♀️ Exercise indoors</li>
-                                <li>📱 Monitor AQI updates</li>
-                            </ul>
-                        </div>
-                        """, unsafe_allow_html=True)
-                    else:
-                        st.markdown("""
-                        <div style='background-color: #2d2d2d; padding: 10px; border-radius: 5px;'>
-                            <p style='color: #4CAF50; font-weight: bold;'>Good AQI - Maintain Wellness</p>
-                            <ul style='color: #e0e0e0;'>
-                                <li>🌳 Enjoy outdoor activities</li>
-                                <li>🌞 Get natural sunlight</li>
-                                <li>🚴‍♀️ Exercise outdoors</li>
-                                <li>🌺 Practice outdoor mindfulness</li>
-                            </ul>
-                        </div>
-                        """, unsafe_allow_html=True)
-                
-                # Save wellness data
-                st.session_state.wellness_logs = getattr(st.session_state, 'wellness_logs', [])
-                st.session_state.wellness_logs.append({
-                    'date': datetime.now().strftime("%Y-%m-%d"),
-                    'aqi': current_aqi,
-                    'stress': stress_level,
-                    'sleep': sleep_quality,
-                    'anxiety': anxiety_level,
-                    'mood': mood_score,
-                    'energy': energy_level
-                })
-                st.success("✅ Your wellness data has been saved successfully!")
-                
-                # Display progress tracking
-                if len(st.session_state.wellness_logs) > 1:
+                # Indoor Air Quality Tips
+                with st.expander("🏠 Indoor Air Quality Tips", expanded=True):
                     st.markdown("""
-                    <div style='background-color: #2d2d2d; padding: 15px; border-radius: 5px; margin-top: 20px;'>
-                        <h3 style='color: #64B5F6; margin-bottom: 1rem;'>📈 Your Wellness Trends</h3>
-                    </div>
-                    """, unsafe_allow_html=True)
+                    **Immediate Actions:**
+                    • Use air purifiers in living spaces
+                    • Keep windows closed during high AQI periods
+                    • Maintain indoor humidity between 30-50%
+                    • Clean air filters regularly
+                    • Use natural air-purifying plants
+                    """)
+                
+                # Outdoor Activity Guidelines
+                with st.expander("🌳 Outdoor Activity Guidelines", expanded=True):
+                    if current_aqi <= 50:
+                        st.success("""
+                        **Safe for Outdoor Activities:**
+                        • Enjoy outdoor exercise
+                        • Take walks in nature
+                        • Practice outdoor meditation
+                        • Garden or do outdoor activities
+                        """)
+                    elif current_aqi <= 100:
+                        st.info("""
+                        **Moderate Outdoor Activities:**
+                        • Limit outdoor time
+                        • Choose less strenuous activities
+                        • Take breaks indoors
+                        • Monitor symptoms
+                        """)
+                    else:
+                        st.warning("""
+                        **Limited Outdoor Activities:**
+                        • Stay indoors when possible
+                        • Wear N95 mask if going out
+                        • Choose indoor exercise
+                        • Use air-purified spaces
+                        """)
+                
+                # Health Protection Measures
+                with st.expander("😷 Health Protection Measures", expanded=True):
+                    st.markdown("""
+                    **Daily Protection:**
+                    • Check AQI before outdoor activities
+                    • Wear appropriate masks when needed
+                    • Use air quality apps for alerts
+                    • Keep rescue medications handy
+                    • Monitor symptoms regularly
+                    """)
+                
+                # Save data for tracking
+                save_wellness_data(current_aqi, stress_level, anxiety_level, sleep_quality, 
+                    energy_level, physical_symptoms_count, mental_wellness_score, 
+                    physical_wellness_score, symptoms_impact_score)
+                
+                # Display Progress Charts
+                if 'wellness_logs' in st.session_state and len(st.session_state.wellness_logs) > 1:
+                    st.markdown("### 📈 Air Quality Impact Trends")
+                    
+                    # Create separate charts for different metrics
                     df = pd.DataFrame(st.session_state.wellness_logs)
-                    st.line_chart(df.set_index('date')[['stress', 'sleep', 'anxiety', 'mood', 'energy']])
-    
+                    
+                    # Air quality impact trends with scatter plot
+                    fig1 = go.Figure()
+                    fig1.add_trace(go.Scatter(
+                        x=df['date'],
+                        y=df['aqi'],
+                        mode='markers+lines',
+                        name='AQI',
+                        line=dict(color='blue'),
+                        marker=dict(size=8)
+                    ))
+                    fig1.add_trace(go.Scatter(
+                        x=df['date'],
+                        y=df['symptoms_impact_score'],
+                        mode='markers+lines',
+                        name='Impact Score',
+                        line=dict(color='red'),
+                        marker=dict(size=8)
+                    ))
+                    fig1.update_layout(
+                        title='AQI and Impact Score Trends',
+                        xaxis_title='Date',
+                        yaxis_title='Score',
+                        hovermode='x unified'
+                    )
+                    st.plotly_chart(fig1)
+                    
+                    # Physical symptoms tracking with scatter plot
+                    fig2 = go.Figure()
+                    fig2.add_trace(go.Scatter(
+                        x=df['date'],
+                        y=df['physical_symptoms_count'],
+                        mode='markers+lines',
+                        name='Physical Symptoms',
+                        line=dict(color='orange'),
+                        marker=dict(size=8)
+                    ))
+                    fig2.update_layout(
+                        title='Physical Symptoms Tracking',
+                        xaxis_title='Date',
+                        yaxis_title='Number of Symptoms',
+                        hovermode='x unified'
+                    )
+                    st.plotly_chart(fig2)
+                    
+                    # Mental wellness correlation with scatter plot
+                    fig3 = go.Figure()
+                    fig3.add_trace(go.Scatter(
+                        x=df['date'],
+                        y=df['aqi'],
+                        mode='markers+lines',
+                        name='AQI',
+                        line=dict(color='blue'),
+                        marker=dict(size=8)
+                    ))
+                    fig3.add_trace(go.Scatter(
+                        x=df['date'],
+                        y=df['mental_wellness_score'],
+                        mode='markers+lines',
+                        name='Mental Wellness',
+                        line=dict(color='green'),
+                        marker=dict(size=8)
+                    ))
+                    fig3.update_layout(
+                        title='AQI and Mental Wellness Correlation',
+                        xaxis_title='Date',
+                        yaxis_title='Score',
+                        hovermode='x unified'
+                    )
+                    st.plotly_chart(fig3)
+
     with tab2:
-        st.markdown("""
-        <div style='background-color: #2d2d2d; padding: 15px; border-radius: 5px; margin-bottom: 20px;'>
-            <h3 style='color: #64B5F6; margin-bottom: 0.5rem;'>📊 Population Mental Health Trends</h3>
-            <p style='color: #e0e0e0; font-size: 0.9rem;'>
-            Analysis of population-wide mental health indicators in relation to air quality levels.
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        # Population data visualization remains the same as it uses Streamlit's default dark theme
-        
-        st.markdown("""
-        <div style='background-color: #2d2d2d; padding: 15px; border-radius: 5px; margin-top: 20px;'>
-            <h4 style='color: #64B5F6; margin-bottom: 0.5rem;'>📊 Understanding the Data</h4>
-            <p style='color: #e0e0e0; font-size: 0.9rem;'>
-            This visualization shows the correlation between air quality levels and reported mental health symptoms across different population segments.
-            The data is aggregated from multiple studies and ongoing health surveys.
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        # Enhanced population data visualization
-        aqi_ranges = ['0-50', '51-100', '101-150', '151-200', '201-300', '300+']
-        stress_correlation = [10, 25, 45, 65, 80, 90]
-        anxiety_correlation = [15, 30, 50, 70, 85, 95]
-        depression_correlation = [12, 28, 48, 68, 82, 92]
-        
-        population_data = pd.DataFrame({
-            'AQI Range': aqi_ranges,
-            'Stress %': stress_correlation,
-            'Anxiety %': anxiety_correlation,
-            'Depression %': depression_correlation
-        })
-        
-        st.bar_chart(population_data.set_index('AQI Range'))
-        
-        st.markdown("""
-        <div style='background-color: #e3f2fd; padding: 1rem; border-radius: 10px; margin-top: 1rem;'>
-            <h3 style='color: #1565c0; margin-bottom: 0.5rem;'>📊 Population Impact Analysis</h3>
-            <p style='color: #1f1f1f; font-size: 0.9rem;'>
-            This chart shows the percentage of population reporting various mental health symptoms
-            at different AQI levels, based on aggregated survey data and medical records.
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
+        show_population_trends()
+
+def get_recommended_activities(aqi, time_of_day, outdoor_time):
+    activities = {
+        'indoor': [
+            "Meditation and deep breathing",
+            "Indoor yoga or stretching",
+            "Reading or creative writing",
+            "Art or craft projects",
+            "Indoor plants care"
+        ],
+        'outdoor': [
+            "Short walks in nature",
+            "Garden maintenance",
+            "Photography",
+            "Bird watching",
+            "Light exercise"
+        ]
+    }
+    
+    if aqi > 150:
+        activities['outdoor'] = [f"⚠️ {activity} (Not recommended due to high AQI)" for activity in activities['outdoor']]
+    elif aqi > 100:
+        activities['outdoor'] = [f"⚠️ {activity} (Limited duration recommended)" for activity in activities['outdoor']]
+    
+    return activities
+
+def save_wellness_data(aqi, stress, anxiety, sleep, energy, symptoms, mental_score, physical_score, symptoms_score):
+    if 'wellness_logs' not in st.session_state:
+        st.session_state.wellness_logs = []
+    
+    st.session_state.wellness_logs.append({
+        'date': datetime.now().strftime("%Y-%m-%d %H:%M"),
+        'aqi': aqi,
+        'stress_level': stress,
+        'anxiety_level': anxiety,
+        'sleep_quality': sleep,
+        'energy_level': energy,
+        'physical_symptoms_count': symptoms,
+        'mental_wellness_score': mental_score,
+        'physical_wellness_score': physical_score,
+        'symptoms_impact_score': symptoms_score
+    })
+    st.success("✅ Your wellness data has been saved successfully!")
+
+def show_population_trends():
+    st.markdown("### 📊 Population Mental Health Trends")
+    
+    # Sample data visualization
+    aqi_ranges = ['0-50', '51-100', '101-150', '151-200', '201-300', '300+']
+    mental_health_impact = [10, 25, 45, 65, 80, 90]
+    physical_symptoms = [5, 20, 40, 60, 75, 85]
+    
+    df = pd.DataFrame({
+        'AQI Range': aqi_ranges,
+        'Mental Health Impact %': mental_health_impact,
+        'Physical Symptoms %': physical_symptoms
+    })
+    
+    st.line_chart(df.set_index('AQI Range'))
+    
+    st.markdown("""
+    #### 📈 Key Findings:
+    - Strong correlation between AQI levels and mental health impacts
+    - Physical symptoms increase significantly at AQI > 150
+    - Long-term exposure shows cumulative effects
+    """)
 
 def main():
     st.sidebar.title("Menu")
