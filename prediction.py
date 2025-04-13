@@ -1584,53 +1584,33 @@ def show_stress_correlation():
                 # Air Quality Specific Recommendations
                 st.markdown("### 🌬️ Air Quality Recommendations")
                 
-                # Indoor Air Quality Tips
-                with st.expander("🏠 Indoor Air Quality Tips", expanded=True):
+                with st.expander("🏠 Indoor Air Quality Tips"):
                     st.markdown("""
-                    **Immediate Actions:**
-                    • Use air purifiers in living spaces
-                    • Keep windows closed during high AQI periods
-                    • Maintain indoor humidity between 30-50%
-                    • Clean air filters regularly
-                    • Use natural air-purifying plants
+                    * 🧬 Use air purifiers in living spaces
+                    * 🪟 Keep windows closed during high AQI periods
+                    * 💧 Maintain indoor humidity between 30-50%
+                    * 🔄 Clean air filters regularly
+                    * 🌿 Use natural air-purifying plants
                     """)
-                
-                # Outdoor Activity Guidelines
-                with st.expander("🌳 Outdoor Activity Guidelines", expanded=True):
-                    if current_aqi <= 50:
-                        st.success("""
-                        **Safe for Outdoor Activities:**
-                        • Enjoy outdoor exercise
-                        • Take walks in nature
-                        • Practice outdoor meditation
-                        • Garden or do outdoor activities
-                        """)
-                    elif current_aqi <= 100:
-                        st.info("""
-                        **Moderate Outdoor Activities:**
-                        • Limit outdoor time
-                        • Choose less strenuous activities
-                        • Take breaks indoors
-                        • Monitor symptoms
-                        """)
-                    else:
-                        st.warning("""
-                        **Limited Outdoor Activities:**
-                        • Stay indoors when possible
-                        • Wear N95 mask if going out
-                        • Choose indoor exercise
-                        • Use air-purified spaces
-                        """)
-                
-                # Health Protection Measures
-                with st.expander("😷 Health Protection Measures", expanded=True):
+                    
+                with st.expander("🌳 Outdoor Activity Guidelines"):
                     st.markdown("""
-                    **Daily Protection:**
-                    • Check AQI before outdoor activities
-                    • Wear appropriate masks when needed
-                    • Use air quality apps for alerts
-                    • Keep rescue medications handy
-                    • Monitor symptoms regularly
+                    * ⏰ Limit outdoor time
+                    * 🚶‍♂️ Choose less strenuous activities
+                    * 🏠 Take breaks indoors
+                    * 📋 Monitor symptoms
+                    * 📅 Plan activities during better air quality periods
+                    """)
+                    
+                with st.expander("😷 Health Protection Measures"):
+                    st.markdown("""
+                    * 📱 Check AQI before outdoor activities
+                    * 😷 Wear appropriate masks when needed
+                    * 🔔 Use air quality apps for alerts
+                    * 💊 Keep rescue medications handy
+                    * 📊 Monitor symptoms regularly
+                    * 💧 Stay hydrated
+                    * 🚫 Avoid high-pollution areas
                     """)
                 
                 # Save data for tracking
