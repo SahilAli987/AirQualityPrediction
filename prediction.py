@@ -1369,11 +1369,11 @@ def show_psychological_impact(aqi):
             if aqi > 200:
                 st.error("""
                 **High AQI Alert - Additional Precautions:**
-                • 🏠 Stay indoors with air purification
-                • 😷 Wear N95 mask if outdoors
-                • 🌿 Use indoor air purifying plants
-                • 💨 Monitor indoor air quality
-                • 📱 Set up air quality alerts
+                * 🏠 Stay indoors with air purification
+                * 😷 Wear N95 mask if outdoors
+                * 🌿 Use indoor air purifying plants
+                * 💨 Monitor indoor air quality
+                * 📱 Set up air quality alerts
                 """)
             elif aqi > 100:
                 st.warning("""
@@ -1457,8 +1457,8 @@ def show_psychological_impact(aqi):
                 })
                 st.success("Wellness data saved successfully! Keep tracking for better insights.")
 
-def show_stress_correlation():
-    st.title("🌬️ Air Quality & Mental Wellness Analysis")
+def show_stress_correlation(current_aqi=None):
+    st.title(" Air Quality & Mental Wellness Analysis")
     
     # Get current time context
     current_hour = datetime.now().hour
@@ -1468,11 +1468,10 @@ def show_stress_correlation():
     tab1, tab2 = st.tabs(["🎯 Personal Analysis", "📊 Air Quality Trends"])
     
     with tab1:
-        st.markdown("### 📍 Location & Air Quality")
+        st.markdown("###  Location & Air Quality")
         
         # Enhanced location detection with error handling
         use_location = st.checkbox("📱 Use my current location", help="Enable to automatically detect your location")
-        current_aqi = None
         
         if use_location:
             with st.spinner("📍 Detecting your location..."):
@@ -1504,7 +1503,7 @@ def show_stress_correlation():
             current_aqi = st.number_input("🌡️ Enter current AQI value:", 0, 500, 100)
         
         # Air Quality Impact Assessment
-        st.markdown("### 🌬️ Air Quality Impact Assessment")
+        st.markdown("###  Air Quality Impact Assessment")
         
         # Create wellness form with enhanced features
         with st.form(key='wellness_form'):
@@ -1567,7 +1566,7 @@ def show_stress_correlation():
                 symptoms_impact_score = 10 if physical_symptoms_count == 0 else max(0, 10 - (physical_symptoms_count * 1.25))
                 
                 # Display Analysis Results
-                st.markdown("### 📊 Air Quality Impact Analysis")
+                st.markdown("###  Air Quality Impact Analysis")
                 
                 # Display metrics in columns
                 col1, col2, col3 = st.columns(3)
@@ -1581,38 +1580,179 @@ def show_stress_correlation():
                     st.metric("Physical Wellness Score", f"{physical_wellness_score:.1f}/10",
                         delta="Good" if physical_wellness_score > 7 else "Moderate" if physical_wellness_score > 5 else "Needs Attention")
                 
-                # Air Quality Specific Recommendations
-                st.markdown("### 🌬️ Air Quality Recommendations")
+               
                 
-                with st.expander("🏠 Indoor Air Quality Tips"):
+                # Personalized Recommendations based on Analysis
+                st.markdown("###  Personalized Recommendations")
+                
+                # Stress Management Recommendations
+                if stress_level > 7:
+                    st.warning("""
+                    **High Stress Level Detected:**
+                    * 🫁 Practice deep breathing exercises every 2 hours
+                    * 🧘‍♀️ Take 5-minute meditation breaks
+                    * 📱 Use stress-relief apps
+                    * 👥 Consider professional support
+                    * 📝 Maintain a stress journal
+                    """)
+                elif stress_level > 4:
+                    st.info("""
+                    **Moderate Stress Level:**
+                    * ⏰ Take regular breaks
+                    * 🧘‍♀️ Practice mindfulness
+                    * 💪 Engage in light exercise
+                    * ⚖️ Maintain work-life balance
+                    * 😌 Use relaxation techniques
+                    """)
+                else:
+                    st.success("""
+                    **Good Stress Management:**
+                    * ✨ Continue current stress management practices
+                    * 🤝 Share effective techniques with others
+                    * 💪 Maintain regular exercise routine
+                    * 🛡️ Practice preventive stress management
+                    * 📊 Keep tracking stress levels
+                    """)
+                
+                # Sleep Quality Recommendations
+                if sleep_quality < 5:
+                    st.warning("""
+                    **Poor Sleep Quality:**
+                    * ⏰ Establish a strict sleep schedule
+                    * 🌙 Create a calming bedtime routine
+                    * 🌬️ Ensure bedroom air quality
+                    * 📱 Limit screen time before bed
+                    * 📊 Consider sleep tracking
+                    """)
+                elif sleep_quality < 8:
+                    st.info("""
+                    **Moderate Sleep Quality:**
+                    * 🛏️ Improve sleep environment
+                    * 🍵 Try calming herbal teas
+                    * 😌 Practice relaxation before bed
+                    * ⏰ Maintain consistent sleep times
+                    * 📊 Track sleep patterns
+                    """)
+                else:
+                    st.success("""
+                    **Good Sleep Quality:**
+                    * ✨ Maintain current sleep routine
+                    * 🌙 Continue good sleep hygiene
+                    * 📊 Track sleep patterns
+                    * 🤝 Share effective techniques
+                    * 🛡️ Practice preventive measures
+                    """)
+                
+                # Energy Level Recommendations
+                if energy_level < 5:
+                    st.warning("""
+                    **Low Energy Level:**
+                    * ⏰ Take frequent short breaks
+                    * 💧 Stay hydrated throughout the day
+                    * 🥗 Eat energy-boosting foods
+                    * 💪 Practice gentle stretching
+                    * 💊 Consider vitamin supplements
+                    """)
+                elif energy_level < 8:
+                    st.info("""
+                    **Moderate Energy Level:**
+                    * 💪 Maintain regular exercise
+                    * ⚖️ Balance work and rest
+                    * 🥗 Eat balanced meals
+                    * 💧 Stay hydrated
+                    * 📊 Track energy patterns
+                    """)
+                else:
+                    st.success("""
+                    **Good Energy Level:**
+                    * ✨ Continue current energy management
+                    * 🤝 Share effective techniques
+                    * 💪 Maintain regular exercise
+                    * 📊 Track energy patterns
+                    * 🛡️ Practice preventive measures
+                    """)
+                
+                # Focus and Concentration Recommendations
+                if focus_level < 5:
+                    st.warning("""
+                    **Low Focus Level:**
+                    * ⏰ Take regular short breaks
+                    * 🧘‍♀️ Practice mindfulness exercises
+                    * 🎯 Use focus-enhancing techniques
+                    * 🔇 Minimize distractions
+                    * 👥 Consider professional help
+                    """)
+                elif focus_level < 8:
+                    st.info("""
+                    **Moderate Focus Level:**
+                    * ⏰ Use time management techniques
+                    * 🧠 Practice concentration exercises
+                    * ⏰ Take regular breaks
+                    * 🪑 Maintain good posture
+                    * 📊 Track focus patterns
+                    """)
+                else:
+                    st.success("""
+                    **Good Focus Level:**
+                    • ✨ Continue current focus techniques
+                    * 🤝 Share effective methods
+                    * ⏰ Maintain regular breaks
+                    * 📊 Track focus patterns
+                    * 🛡️ Practice preventive measures
+                    """)
+                
+ # Air Quality Specific Recommendations
+                st.markdown("###  Air Quality Recommendations")
+                
+                # Indoor Air Quality Tips
+                with st.expander("🏠 Indoor Air Quality Tips", expanded=True):
                     st.markdown("""
-                    * 🧬 Use air purifiers in living spaces
+                    **Immediate Actions:**
+                    * 🌬️ Use air purifiers in living spaces
                     * 🪟 Keep windows closed during high AQI periods
                     * 💧 Maintain indoor humidity between 30-50%
-                    * 🔄 Clean air filters regularly
+                    * 🔧 Clean air filters regularly
                     * 🌿 Use natural air-purifying plants
                     """)
-                    
-                with st.expander("🌳 Outdoor Activity Guidelines"):
+                
+                # Outdoor Activity Guidelines
+                with st.expander("🌳 Outdoor Activity Guidelines", expanded=True):
+                    if current_aqi <= 50:
+                        st.success("""
+                        **Safe for Outdoor Activities:**
+                        * 🏃‍♂️ Enjoy outdoor exercise
+                        * 🚶‍♀️ Take walks in nature
+                        * 🧘‍♀️ Practice outdoor meditation
+                        * 🌺 Garden or do outdoor activities
+                        """)
+                    elif current_aqi <= 100:
+                        st.info("""
+                        **Moderate Outdoor Activities:**
+                        * ⏱️ Limit outdoor time
+                        * 🏃‍♂️ Choose less strenuous activities
+                        * 🏠 Take breaks indoors
+                        * 📊 Monitor symptoms
+                        """)
+                    else:
+                        st.warning("""
+                        **Limited Outdoor Activities:**
+                        * 🏠 Stay indoors when possible
+                        * 😷 Wear N95 mask if going out
+                        * 💪 Choose indoor exercise
+                        * 🌬️ Use air-purified spaces
+                        """)
+                
+                # Health Protection Measures
+                with st.expander("😷 Health Protection Measures", expanded=True):
                     st.markdown("""
-                    * ⏰ Limit outdoor time
-                    * 🚶‍♂️ Choose less strenuous activities
-                    * 🏠 Take breaks indoors
-                    * 📋 Monitor symptoms
-                    * 📅 Plan activities during better air quality periods
-                    """)
-                    
-                with st.expander("😷 Health Protection Measures"):
-                    st.markdown("""
+                    **Daily Protection:**
                     * 📱 Check AQI before outdoor activities
                     * 😷 Wear appropriate masks when needed
                     * 🔔 Use air quality apps for alerts
                     * 💊 Keep rescue medications handy
                     * 📊 Monitor symptoms regularly
-                    * 💧 Stay hydrated
-                    * 🚫 Avoid high-pollution areas
                     """)
-                
+
                 # Save data for tracking
                 save_wellness_data(current_aqi, stress_level, anxiety_level, sleep_quality, 
                     energy_level, physical_symptoms_count, mental_wellness_score, 
@@ -1767,8 +1907,8 @@ def show_population_trends():
 def main():
     st.sidebar.title("Menu")
     page = st.sidebar.selectbox(
-        "Menu",
-        ["Predict", "Geo Location", "India AQI Map", "Explore", "Stress Analysis"]
+        "",
+        ["Predict", "Geo Location", "India AQI Map", "Explore", "Mental Wellness"]
     )
     
     if page == "Predict":
@@ -1779,8 +1919,20 @@ def main():
         show_india_aqi_map()
     elif page == "Explore":
         show_model_metrics()
-    elif page == "Stress Analysis":
-        show_psychological_impact(aqi)
+    elif page == "Mental Wellness":
+        # Get current AQI from geolocation if available
+        try:
+            lat, lon = get_geolocation()
+            if lat and lon:
+                aqi_data = get_aqi_data(lat, lon)
+                current_aqi = aqi_data.get('aqi', None)
+            else:
+                current_aqi = None
+        except Exception as e:
+            st.warning("Unable to fetch current AQI. You can still proceed with the wellness analysis.")
+            current_aqi = None
+        
+        show_stress_correlation(current_aqi)
 
 if __name__ == "__main__":
     main()
