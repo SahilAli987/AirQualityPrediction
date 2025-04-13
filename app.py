@@ -16,7 +16,7 @@ def main():
     st.sidebar.title("Menu")
     page = st.sidebar.selectbox(
         "",
-        ["Predict", "Geo Location", "India AQI Map", "Psychological Impact", "Explore"]
+        ["Predict", "Geo Location", "India AQI Map", "Mental Wellness", "Explore"]
     )
     
     if page == "Predict":
@@ -29,7 +29,7 @@ def main():
         show_geo_prediction_page()
     elif page == "India AQI Map":
         show_india_aqi_map()
-    elif page == "Psychological Impact":
+    elif page == "Mental Wellness":
        show_stress_correlation()
     else:
         lottie_hello = load_lottieurl("https://assets7.lottiefiles.com/packages/lf20_zlrpnoxz.json")
