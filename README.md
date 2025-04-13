@@ -1,35 +1,97 @@
-## :open_file_folder:  Air Quality Index Prediction
-- This repository contains code to predict the air quality based on the given parameters.
-- With the help of this project we can detect the air quality and can decide to go out or not.
+# Air Quality Index Prediction 🌍
 
-## :memo: Decription
-With the rise of COVID-19 and Air pollution, people are now more concern about their health. People from cities like Mumbai, Delhi, Bangalore where the air pollution is high now are in concern about the outdoor air quality they breathe. Keeping such things in mind, we have created Web App for all types of users from anywhere who can use to predict the Air Quality with some or all parameters. We even extend the project by adding the **Explore** page where developers and students can explore different types of graphs and charts to identify the realtion between the paramters or get the domain knowledge. Even if you are just a user, try **Explore** page and have fun :smiley: 
+## Overview
+This repository contains a comprehensive Air Quality Index (AQI) prediction system that helps users determine air quality based on various pollutant parameters. The application provides both manual input prediction and real-time geolocation-based air quality monitoring.
 
-## :gear: Project Demo
-- Application is hosted on Heroku. You can see the [demo](https://airqualityindexcheckerr.herokuapp.com/)
-- Detailed walkthrough video for the above project is posted on the Youtube. [Watch Here](https://www.youtube.com/watch?v=AGFId4sYWP4)
+## 🎯 Features
+- **Manual Prediction**: Input pollutant levels manually to predict AQI
+- **Geolocation-based Prediction**: Get real-time AQI predictions based on your current location
+- **Interactive Visualization**: Explore relationships between different pollutants through charts and graphs
+- **Health Recommendations**: Receive health advice based on the predicted AQI level
+- **Model Performance Metrics**: View the model's accuracy and reliability
 
-## :hourglass_flowing_sand: Dataset
-The raw and cleaned dataset is uploaded in the ``` ./Data/``` folder and you can download the files from below link too.
-- [Raw Data](https://github.com/evon0101/Air-Quality-index-Prediction/blob/main/Data/city_hour.csv)
-- [Cleaned Data](https://github.com/evon0101/Air-Quality-index-Prediction/blob/main/Data/final_data.csv)
+## 🔍 Key Parameters
+The system considers the following pollutants for AQI prediction:
+- PM2.5 (Fine particulate matter)
+- NO2 (Nitrogen Dioxide)
+- SO2 (Sulfur Dioxide)
+- CO (Carbon Monoxide)
+- O3 (Ozone)
 
-## :cloud: Machine Learning Models
-Below are the machine learning models used for this project
-- [Linear Regression](https://github.com/evon0101/Air-Quality-index-Prediction/blob/main/models/2.%20Implementing%20Linear%20and%20Lasso%20Regression.ipynb)
-- [Lasso Regression](https://github.com/evon0101/Air-Quality-index-Prediction/blob/main/models/2.%20Implementing%20Linear%20and%20Lasso%20Regression.ipynb)
-- [Decision Tree Regressor](https://github.com/evon0101/Air-Quality-index-Prediction/blob/main/models/3.%20Implementing%20Decision%20Tree.ipynb)
-- [XGBoost Algorithm](https://github.com/evon0101/Air-Quality-index-Prediction/blob/main/models/4.%20Implementing%20XGBoost%20for%20Regression.ipynb)
-- [Random Forest Classifier](https://github.com/evon0101/Air-Quality-index-Prediction/blob/main/models/6.%20Implementing%20Random%20Forest%20Classifier%20(Part%202).ipynb)
-- [Artificial Neural Network](https://github.com/evon0101/Air-Quality-index-Prediction/blob/main/models/7.%20Implementing%20ANN.ipynb)
+## 🛠️ Technical Stack
+- **Frontend**: Streamlit
+- **Backend**: Python
+- **ML Models**: 
+  - XGBoost (Primary model)
+  - Random Forest
+  - Decision Tree
+  - Linear Regression
+  - Lasso Regression
+  - Artificial Neural Network
+- **APIs**: WAQI API for real-time air quality data
 
-## :hammer_and_wrench: Requirements
+## 📊 Model Performance
+- Model Accuracy: 89%
+- Evaluation Metrics: R-squared score, MSE, RMSE
+- Cross-validation implemented for robust performance
+
+## 🔧 Installation & Setup
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/SahilAli987/AirQualityPrediction.git
+   ```
+2. Install required packages:
+   ```bash
+   pip install -r requirements.txt
+   ```
+3. Run the application:
+   ```bash
+   streamlit run app.py
+   ```
+
+## 📚 Dependencies
 - Python 3.5+
-- Sklearn
-- Pandas
-- Matplotlib
-- Seaborn
+- streamlit
+- pandas
+- numpy
+- scikit-learn
+- xgboost
+- requests
+- matplotlib
+- seaborn
 
-## <img src="https://raw.githubusercontent.com/TheDudeThatCode/TheDudeThatCode/master/Assets/Developer.gif" width=35 height=25> Contributors
+## 📂 Project Structure
+```
+├── Data/
+│   ├── city_hour.csv        # Raw dataset
+│   └── final_data.csv       # Cleaned dataset
+├── models/
+│   ├── Linear_Regression.ipynb
+│   ├── Decision_Tree.ipynb
+│   ├── Random_Forest.ipynb
+│   └── XGBoost.ipynb
+├── app.py                   # Main application file
+├── prediction.py           # Prediction logic
+├── explore_page.py        # Data exploration page
+└── requirements.txt       # Project dependencies
+```
+
+## 🌟 Recent Updates
+- Added geolocation-based prediction feature
+- Implemented health recommendations based on AQI levels
+- Fixed feature name consistency across the application
+- Enhanced UI with better visualization and user feedback
+- Added model accuracy display
+
+## 👥 Contributors
 - MD SAHIL ALI
 - ARYAN JAIN
+
+## 📝 License
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## 🤝 Contributing
+Contributions, issues, and feature requests are welcome! Feel free to check [issues page](https://github.com/SahilAli987/AirQualityPrediction/issues).
+
+## 📧 Contact
+For any queries or suggestions, please reach out to the contributors.
