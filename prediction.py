@@ -20,62 +20,14 @@ data = load_model()
 regressor = data["model"]
 
 
-def get_location_from_browser():
-    st.write("### Location Settings")
-    
-    # Default location (New Delhi)
-    default_city = "New Delhi"
-    default_state = "Delhi"
-    default_country = "India"
-    
-    # Location input method
-    location_method = st.radio(
-        "Choose location method:",
-        ["Use current location", "Enter location manually"]
-    )
-    
-    if location_method == "Use current location":
-        try:
-            # Add a button to trigger location access
-            if st.button("Get Current Location"):
-                st.info("For accurate results, please allow location access in your browser when prompted.")
-                st.markdown("""
-                    <div>Attempting to get your location...</div>
-                    <script>
-                    if (navigator.geolocation) {
-                        navigator.geolocation.getCurrentPosition(
-                            function(position) {
-                                window.parent.postMessage({
-                                    type: "streamlit",
-                                    coords: [position.coords.latitude, position.coords.longitude]
-                                }, "*");
-                            },
-                            function(error) {
-                                console.error("Error getting location:", error);
-                            }
-                        );
-                    }
-                    </script>
-                    """, unsafe_allow_html=True)
-                
-                # If location access fails, fall back to manual input
-                st.warning("If location access fails, please use manual input below.")
-                
-        except Exception as e:
-            st.error(f"Error accessing location: {e}")
-            st.info("Please use manual input instead.")
-    
-    # Always show manual input fields as fallback
-    city = st.text_input("City:", default_city)
-    state = st.text_input("State/Region:", default_state)
-    country = st.text_input("Country:", default_country)
-    
-    # Validate input
-    if not city or not state or not country:
-        st.warning("Please fill in all location fields.")
+def get_location_from_ip():
+    try:
+        response = requests.get('https://ipinfo.io/json')
+        data = response.json()
+        return data.get('city'), data.get('region'), data.get('country')
+    except Exception as e:
+        st.error(f"Error getting location: {e}")
         return None, None, None
-    
-    return city, state, country
 
 
 def test_openweather_api(lat, lon):
@@ -187,169 +139,165 @@ def show_geo_prediction_page():
     st.title("Geo-Location Based AQI Prediction")
     st.write("""We'll use your location to predict the Air Quality Index in your area.""")
     
-    # Get user's location using the new method
-    city, region, country = get_location_from_browser()
+    # Get user's location
+    city, region, country = get_location_from_ip()
     
     if city and region and country:
-        st.write(f"Location: {city}, {region}, {country}")
+        st.write(f"Detected Location: {city}, {region}, {country}")
         
         # Get coordinates for the map
         geolocator = Nominatim(user_agent="aqi_app")
-        try:
-            location = geolocator.geocode(f"{city}, {region}, {country}")
+        location = geolocator.geocode(f"{city}, {region}, {country}")
+        
+        if location:
+            # Create a map centered at the user's location
+            m = folium.Map(location=[location.latitude, location.longitude], zoom_start=10)
+            folium.Marker(
+                [location.latitude, location.longitude],
+                popup=f"{city}, {region}",
+                tooltip="Your Location"
+            ).add_to(m)
             
-            if location:
-                # Create a map centered at the user's location
-                m = folium.Map(location=[location.latitude, location.longitude], zoom_start=10)
-                folium.Marker(
-                    [location.latitude, location.longitude],
-                    popup=f"{city}, {region}",
-                    tooltip="Your Location"
-                ).add_to(m)
+            # Display the map
+            folium_static(m)
+            
+            # Get AQI data
+            aqi_data = get_aqi_data(location.latitude, location.longitude)
+            
+            if aqi_data:
+                # Create two columns for comparison
+                col1, col2 = st.columns(2)
                 
-                # Display the map
-                folium_static(m)
-                
-                # Get AQI data
-                aqi_data = get_aqi_data(location.latitude, location.longitude)
-                
-                if aqi_data:
-                    # Create two columns for comparison
-                    col1, col2 = st.columns(2)
+                with col1:
+                    st.subheader("Real-time Air Quality")
+                    st.write(f"Location: {city}, {region}")
                     
-                    with col1:
-                        st.subheader("Real-time Air Quality")
-                        st.write(f"Location: {city}, {region}")
-                        
-                        # Convert AQI to category
-                        def get_aqi_category(aqi):
-                            if aqi <= 50:
-                                return ("Good", "🟢")
-                            elif aqi <= 100:
-                                return ("Moderate", "🟡")
-                            elif aqi <= 150:
-                                return ("Unhealthy for Sensitive Groups", "🟠")
-                            elif aqi <= 200:
-                                return ("Unhealthy", "🔴")
-                            elif aqi <= 300:
-                                return ("Very Unhealthy", "🟣")
-                            else:
-                                return ("Hazardous", "⚫")
-                        
-                        real_category, real_emoji = get_aqi_category(aqi_data['aqi'])
-                        st.write(f"### Current AQI: {aqi_data['aqi']} {real_emoji}")
-                        st.write(f"Status: {real_category}")
-                        
-                        # Display pollutant levels with proper units and ranges
-                        st.write("### Pollutant Levels:")
-                        metrics = {
-                            "PM2.5": {
-                                "value": aqi_data['PM2.5'],
-                                "unit": "µg/m³",
-                                "safe_range": "0-12",
-                                "description": "Fine particulate matter"
-                            },
-                            "NO2": {
-                                "value": aqi_data['NO2'],
-                                "unit": "µg/m³",
-                                "safe_range": "0-40",
-                                "description": "Nitrogen dioxide"
-                            },
-                            "CO": {
-                                "value": aqi_data['CO'],
-                                "unit": "mg/m³",
-                                "safe_range": "0-4",
-                                "description": "Carbon monoxide"
-                            },
-                            "SO2": {
-                                "value": aqi_data['SO2'],
-                                "unit": "µg/m³",
-                                "safe_range": "0-20",
-                                "description": "Sulfur dioxide"
-                            },
-                            "O3": {
-                                "value": aqi_data['O3'],
-                                "unit": "µg/m³",
-                                "safe_range": "0-50",
-                                "description": "Ozone"
-                            }
-                        }
-                        
-                        for pollutant, info in metrics.items():
-                            st.metric(
-                                label=f"{pollutant} ({info['description']})",
-                                value=f"{info['value']} {info['unit']}",
-                                delta=f"Safe range: {info['safe_range']} {info['unit']}"
-                            )
-                    
-                    with col2:
-                        st.subheader("Model Prediction")
-                        # Create DataFrame with uppercase feature names
-                        model_input = pd.DataFrame([[aqi_data['PM2.5'], 
-                                                  aqi_data['NO2'],
-                                                  aqi_data['CO'],
-                                                  aqi_data['SO2'],
-                                                  aqi_data['O3']]], 
-                                                columns=['PM2.5', 'NO2', 'CO', 'SO2', 'O3'])
-                        predicted_aqi = regressor.predict(model_input)[0]
-                        predicted_category, pred_emoji = get_aqi_category(predicted_aqi)
-                        
-                        st.write(f"### Predicted AQI: {predicted_aqi:.1f} {pred_emoji}")
-                        st.write(f"Status: {predicted_category}")
-                        
-                        # Calculate and display model performance metrics
-                        aqi_diff = abs(predicted_aqi - aqi_data['aqi'])
-                        accuracy = max(0, 100 - (aqi_diff / aqi_data['aqi']) * 100)
-                        
-                        st.write("### Model Performance")
-                        st.metric(
-                            label="Prediction Accuracy",
-                            value=f"{accuracy:.1f}%",
-                            delta=f"{-aqi_diff:.1f} AQI points" if aqi_diff > 0 else "Perfect Match!"
-                        )
-                        
-                        # Add confidence indicator based on accuracy
-                        if accuracy >= 90:
-                            confidence = "High Confidence 🎯"
-                        elif accuracy >= 70:
-                            confidence = "Moderate Confidence 👍"
+                    # Convert AQI to category
+                    def get_aqi_category(aqi):
+                        if aqi <= 50:
+                            return ("Good", "🟢")
+                        elif aqi <= 100:
+                            return ("Moderate", "🟡")
+                        elif aqi <= 150:
+                            return ("Unhealthy for Sensitive Groups", "🟠")
+                        elif aqi <= 200:
+                            return ("Unhealthy", "🔴")
+                        elif aqi <= 300:
+                            return ("Very Unhealthy", "🟣")
                         else:
-                            confidence = "Low Confidence ⚠️"
-                        st.write(f"Prediction Confidence: {confidence}")
+                            return ("Hazardous", "⚫")
                     
-                    # Add a time series chart if historical data is available
-                    st.subheader("Comparison Analysis")
-                    chart_data = pd.DataFrame({
-                        'Metric': ['Real-time AQI', 'Predicted AQI'],
-                        'Value': [aqi_data['aqi'], predicted_aqi]
-                    })
-                    st.bar_chart(chart_data.set_index('Metric'))
+                    real_category, real_emoji = get_aqi_category(aqi_data['aqi'])
+                    st.write(f"### Current AQI: {aqi_data['aqi']} {real_emoji}")
+                    st.write(f"Status: {real_category}")
                     
-                    # Add recommendations based on AQI levels
-                    st.subheader("Health Recommendations")
-                    current_aqi = aqi_data['aqi']
-                    if current_aqi <= 50:
-                        st.success("Air quality is good. Perfect for outdoor activities! 🌳")
-                    elif current_aqi <= 100:
-                        st.info("Moderate air quality. Sensitive individuals should reduce prolonged outdoor exposure. 🚶")
-                    elif current_aqi <= 150:
-                        st.warning("Unhealthy for sensitive groups. Reduce outdoor activities. 😷")
-                    elif current_aqi <= 200:
-                        st.warning("Unhealthy. Everyone should limit outdoor activities. 🏠")
-                    elif current_aqi <= 300:
-                        st.error("Very unhealthy. Avoid outdoor activities. Stay indoors! ⚠️")
+                    # Display pollutant levels with proper units and ranges
+                    st.write("### Pollutant Levels:")
+                    metrics = {
+                        "PM2.5": {
+                            "value": aqi_data['PM2.5'],
+                            "unit": "µg/m³",
+                            "safe_range": "0-12",
+                            "description": "Fine particulate matter"
+                        },
+                        "NO2": {
+                            "value": aqi_data['NO2'],
+                            "unit": "µg/m³",
+                            "safe_range": "0-40",
+                            "description": "Nitrogen dioxide"
+                        },
+                        "CO": {
+                            "value": aqi_data['CO'],
+                            "unit": "mg/m³",
+                            "safe_range": "0-4",
+                            "description": "Carbon monoxide"
+                        },
+                        "SO2": {
+                            "value": aqi_data['SO2'],
+                            "unit": "µg/m³",
+                            "safe_range": "0-20",
+                            "description": "Sulfur dioxide"
+                        },
+                        "O3": {
+                            "value": aqi_data['O3'],
+                            "unit": "µg/m³",
+                            "safe_range": "0-50",
+                            "description": "Ozone"
+                        }
+                    }
+                    
+                    for pollutant, info in metrics.items():
+                        st.metric(
+                            label=f"{pollutant} ({info['description']})",
+                            value=f"{info['value']} {info['unit']}",
+                            delta=f"Safe range: {info['safe_range']} {info['unit']}"
+                        )
+                
+                with col2:
+                    st.subheader("Model Prediction")
+                    # Create DataFrame with uppercase feature names
+                    model_input = pd.DataFrame([[aqi_data['PM2.5'], 
+                                              aqi_data['NO2'],
+                                              aqi_data['CO'],
+                                              aqi_data['SO2'],
+                                              aqi_data['O3']]], 
+                                            columns=['PM2.5', 'NO2', 'CO', 'SO2', 'O3'])
+                    predicted_aqi = regressor.predict(model_input)[0]
+                    predicted_category, pred_emoji = get_aqi_category(predicted_aqi)
+                    
+                    st.write(f"### Predicted AQI: {predicted_aqi:.1f} {pred_emoji}")
+                    st.write(f"Status: {predicted_category}")
+                    
+                    # Calculate and display model performance metrics
+                    aqi_diff = abs(predicted_aqi - aqi_data['aqi'])
+                    accuracy = max(0, 100 - (aqi_diff / aqi_data['aqi']) * 100)
+                    
+                    st.write("### Model Performance")
+                    st.metric(
+                        label="Prediction Accuracy",
+                        value=f"{accuracy:.1f}%",
+                        delta=f"{-aqi_diff:.1f} AQI points" if aqi_diff > 0 else "Perfect Match!"
+                    )
+                    
+                    # Add confidence indicator based on accuracy
+                    if accuracy >= 90:
+                        confidence = "High Confidence 🎯"
+                    elif accuracy >= 70:
+                        confidence = "Moderate Confidence 👍"
                     else:
-                        st.error("Hazardous conditions! Emergency conditions. Take precautions! ☣️")
-                    
+                        confidence = "Low Confidence ⚠️"
+                    st.write(f"Prediction Confidence: {confidence}")
+                
+                # Add a time series chart if historical data is available
+                st.subheader("Comparison Analysis")
+                chart_data = pd.DataFrame({
+                    'Metric': ['Real-time AQI', 'Predicted AQI'],
+                    'Value': [aqi_data['aqi'], predicted_aqi]
+                })
+                st.bar_chart(chart_data.set_index('Metric'))
+                
+                # Add recommendations based on AQI levels
+                st.subheader("Health Recommendations")
+                current_aqi = aqi_data['aqi']
+                if current_aqi <= 50:
+                    st.success("Air quality is good. Perfect for outdoor activities! 🌳")
+                elif current_aqi <= 100:
+                    st.info("Moderate air quality. Sensitive individuals should reduce prolonged outdoor exposure. 🚶")
+                elif current_aqi <= 150:
+                    st.warning("Unhealthy for sensitive groups. Reduce outdoor activities. 😷")
+                elif current_aqi <= 200:
+                    st.warning("Unhealthy. Everyone should limit outdoor activities. 🏠")
+                elif current_aqi <= 300:
+                    st.error("Very unhealthy. Avoid outdoor activities. Stay indoors! ⚠️")
                 else:
-                    st.warning("Could not fetch AQI data for your location. Please try another nearby city.")
+                    st.error("Hazardous conditions! Emergency conditions. Take precautions! ☣️")
+                    
             else:
-                st.error("Could not find coordinates for the entered location. Please try a different location.")
-        except Exception as e:
-            st.error(f"Error: {str(e)}")
-            st.info("Please try entering a different location or check your spelling.")
+                st.warning("Could not fetch AQI data for your location.")
+        else:
+            st.error("Could not determine exact coordinates for your location.")
     else:
-        st.warning("Please enter your location details to get AQI prediction.")
+        st.error("Could not detect your location. Please try again or use manual prediction.")
 
 
 def show_predict_page():
