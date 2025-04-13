@@ -10,6 +10,40 @@ This repository contains a comprehensive Air Quality Index (AQI) prediction syst
 - **Health Recommendations**: Receive health advice based on the predicted AQI level
 - **Model Performance Metrics**: View the model's accuracy and reliability
 
+## 🌟 Novelty Features
+### 1. Real-time Geolocation Integration
+- **Automatic Location Detection**: Uses browser's geolocation API to detect user's current location
+- **WAQI API Integration**: Fetches real-time air quality data from the World Air Quality Index Project
+- **Dynamic Updates**: Continuously updates AQI predictions based on location changes
+- **Global Coverage**: Works with monitoring stations worldwide
+
+### 2. Smart Health Recommendations
+- **Contextual Advice**: Provides health recommendations based on:
+  - Current AQI level
+  - Time of day
+  - User location
+- **Color-coded Alerts**: Visual indicators for different air quality levels
+- **Activity Recommendations**: Suggests outdoor activity modifications
+- **Health Risk Indicators**: Shows specific risks for sensitive groups
+
+### 3. Advanced Visualization System
+- **Interactive Charts**: Dynamic visualization of pollutant relationships
+- **Trend Analysis**: Historical AQI data visualization
+- **Pollutant Comparison**: Side-by-side comparison of different pollutants
+- **Geospatial Visualization**: Map-based representation of AQI levels
+
+### 4. Hybrid Prediction System
+- **Multi-model Approach**: Combines multiple ML models for better accuracy
+- **Real-time Validation**: Cross-validates predictions with actual sensor data
+- **Confidence Metrics**: Displays prediction confidence levels
+- **Adaptive Learning**: Improves predictions based on historical accuracy
+
+### 5. User Experience Enhancements
+- **Responsive Design**: Works seamlessly across devices
+- **Intuitive Interface**: Easy-to-understand pollution metrics
+- **Quick Share**: Share AQI reports via social media or email
+- **Customizable Alerts**: Set personal AQI thresholds for notifications
+
 ## 🔍 Key Parameters
 The system considers the following pollutants for AQI prediction:
 - PM2.5 (Fine particulate matter)
