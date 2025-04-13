@@ -31,5 +31,5 @@ Below are the machine learning models used for this project
 - Seaborn
 
 ## <img src="https://raw.githubusercontent.com/TheDudeThatCode/TheDudeThatCode/master/Assets/Developer.gif" width=35 height=25> Contributors
-- Arshad Rangrez
-- Dhanlaxmi Dhangar
+- MD SAHIL ALI
+- ARYAN JAIN
