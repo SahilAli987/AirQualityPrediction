@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Geolocation Component</title>
+</head>
+<body>
+    <script>
+        function sendMessageToStreamlitClient(type, data) {
+            const outData = Object.assign({
+                isStreamlitMessage: true,
+                type: type,
+            }, data);
+            window.parent.postMessage(outData, "*");
+        }
+
+        function init() {
+            sendMessageToStreamlitClient("streamlit:componentReady", {apiVersion: 1});
+        }
+
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const coords = {
+                            latitude: position.coords.latitude,
+                            longitude: position.coords.longitude
+                        };
+                        sendMessageToStreamlitClient("streamlit:setComponentValue", {
+                            value: coords
+                        });
+                    },
+                    (error) => {
+                        console.error("Error getting location:", error);
+                        sendMessageToStreamlitClient("streamlit:setComponentValue", {
+                            value: null
+                        });
+                    }
+                );
+            } else {
+                console.error("Geolocation is not supported by this browser.");
+                sendMessageToStreamlitClient("streamlit:setComponentValue", {
+                    value: null
+                });
+            }
+        }
+
+        // Initialize on load
+        init();
+        // Get location when component loads
+        getLocation();
+    </script>
+</body>
+</html> 
