@@ -20,15 +20,15 @@
      <!-- Main Input For Receiving Query to our ML -->
 
     <form action="{{ url_for('predict')}}"method="post">
-    <p style="text-align: left"><small> <b>PM2.5</b> (Usually ranges from 0.1 to 120)</small></p>
+    <p style="text-align: left"><small> <b>PM2.5</b> (Usually ranges from 0.1 to 120 µg/m³)</small></p>
     <input type="number" step="any" placeholder="Enter Value" name = "PM2.5" required="required">
-     <p style="text-align: left"><small> <b>NO2</b> (Usually ranges from 0.01 to 60)</small></p>
+     <p style="text-align: left"><small> <b>NO2</b> (Usually ranges from 0.01 to 60 µg/m³)</small></p>
     <input type="number"  step="any" placeholder="Enter Value" name="NO2" required="required">
-     <p style="text-align: left"><small> <b>CO</b>  (Usually ranges from 0 to 3) </small></p>
+     <p style="text-align: left"><small> <b>CO</b>  (Usually ranges from 0 to 3 mg/m³) </small></p>
     <input type="number"  step="any"  placeholder="Enter Value" name="CO" required="required">
-     <p style="text-align: left"><small> <b>SO2</b> (Usually ranges from 0.01 to 25)</small></p>
+     <p style="text-align: left"><small> <b>SO2</b> (Usually ranges from 0.01 to 25 µg/m³)</small></p>
     <input type="number"  step="any"   placeholder="Enter Value" name="SO2" required="required">
-     <p style="text-align: left"><small> <b>O3</b>  (Usually ranges from 0.01 to 65)</small></p>
+     <p style="text-align: left"><small> <b>O3</b>  (Usually ranges from 0.01 to 65 µg/m³)</small></p>
     <input type="number"  step="any" placeholder="Enter Value" name="O3" required="required">
 
     <button type="submit" class="btn btn-primary btn-block btn-large">Predict</button>
